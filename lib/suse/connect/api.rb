@@ -26,7 +26,7 @@ module SUSE
       # Announce a system to SCC.
       # @note https://github.com/SUSE/connect/wiki/SCC-API-(Implemented)#wiki-announce-system
       #
-      # @param auth [String] authorizaztion string which will be injected in `Authorization` header in request.
+      # @param auth [String] authorization string which will be injected in `Authorization` header in request.
       #   In this case we expect Token authentication where token is a registration code.
       # @return [OpenStruct] responding to #body(response from SCC), #code(natural HTTP response code) and #success.
       #
@@ -42,7 +42,7 @@ module SUSE
       # Find and return the correct list of all available services for this system's combination of subscription,
       # installed product, and architecture.
       #
-      # @param auth [String] authorizaztion string which will be injected in `Authorization` header in request.
+      # @param auth [String] authorization string which will be injected in `Authorization` header in request.
       #   In this case we expects Base64 encoded string with login and password
       # @param product [Hash] product
       #
