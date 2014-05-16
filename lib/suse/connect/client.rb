@@ -23,7 +23,7 @@ module SUSE
         @options[:debug]    = !!opts[:verbose]
         @options[:language] = opts[:language] || config.language
         @options[:token]    = opts[:token] || config.regcode
-        @options[:product]  = opts[:product] || Zypper.base_product
+        @options[:product]  = opts[:product]
         @api                = Api.new(self)
       end
 
@@ -33,7 +33,7 @@ module SUSE
           login, password = announce_system
           Credentials.new(login, password, Credentials::GLOBAL_CREDENTIALS_FILE).write
         end
-        service = activate_product(@options[:product])
+        service = activate_product(@options[:product] || Zypper.base_product)
         System.add_service(service)
       end
 
