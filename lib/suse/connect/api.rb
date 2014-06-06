@@ -57,8 +57,8 @@ module SUSE
       def activate_product(auth, product_ident, email = nil)
         token = product_ident[:token] || @client.options[:token]
         payload = {
-          :product_ident => product_ident[:name],
-          :product_version => product_ident[:version],
+          :identifier => product_ident[:name],
+          :version => product_ident[:version],
           :arch => product_ident[:arch],
           :release_type => product_ident[:release_type],
           :token => token,
@@ -74,8 +74,8 @@ module SUSE
       # @param product_ident [Hash] product
       def upgrade_product(auth, product_ident)
         payload = {
-          :product_ident => product_ident[:name],
-          :product_version => product_ident[:version],
+          :identifier => product_ident[:name],
+          :version => product_ident[:version],
           :arch => product_ident[:arch],
           :release_type => product_ident[:release_type]
         }
