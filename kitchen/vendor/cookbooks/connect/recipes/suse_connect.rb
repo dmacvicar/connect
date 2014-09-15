@@ -1,6 +1,6 @@
 git '/tmp/connect' do
   repository 'https://github.com/SUSE/connect.git'
-  reference 'master'
+  reference 'review_140910_fix_cloud_integration_testing_2188'
   action 'sync'
   user 'vagrant'
   group 'users'
