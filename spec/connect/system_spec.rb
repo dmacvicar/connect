@@ -23,24 +23,24 @@ describe SUSE::Connect::System do
 
       let :stub_ncc_cred_file do
         stub_creds_file = double('me_file')
-        stub_creds_file.stub(:close)
+        allow(stub_creds_file).to receive(:close)
         stub_creds_file
       end
 
       before do
-        File.stub(:exist?).with(credentials_file).and_return(true)
+        allow(File).to receive(:exist?).with(credentials_file).and_return(true)
       end
 
       it 'should raise MalformedSccCredentialsFile if cannot parse lines' do
-        File.stub(:read).with(credentials_file).and_return("me\nfe")
+        allow(File).to receive(:read).with(credentials_file).and_return("me\nfe")
         expect { subject.credentials }
           .to raise_error MalformedSccCredentialsFile, 'Cannot parse credentials file'
       end
 
       it 'should return username and password' do
-        File.stub(:read).with(credentials_file).and_return("username=bill\npassword=nevermore")
-        subject.credentials.username.should eq 'bill'
-        subject.credentials.password.should eq 'nevermore'
+        allow(File).to receive(:read).with(credentials_file).and_return("username=bill\npassword=nevermore")
+        expect(subject.credentials.username).to eq 'bill'
+        expect(subject.credentials.password).to eq 'nevermore'
       end
 
     end
@@ -48,11 +48,11 @@ describe SUSE::Connect::System do
     context :credentials_not_exist do
 
       before(:each) do
-        File.should_receive(:exist?).with(credentials_file).and_return(false)
+        expect(File).to receive(:exist?).with(credentials_file).and_return(false)
       end
 
       it 'should produce log message' do
-        subject.credentials.should be_nil
+        expect(subject.credentials).to be_nil
       end
 
     end
@@ -60,12 +60,12 @@ describe SUSE::Connect::System do
     context :remove_credentials do
 
       before(:each) do
-        subject.should_receive(:credentials?).and_return(true)
-        File.should_receive(:delete).with(credentials_file).and_return(true)
+        expect(subject).to receive(:credentials?).and_return(true)
+        expect(File).to receive(:delete).with(credentials_file).and_return(true)
       end
 
       it 'should remove credentials file' do
-        subject.remove_credentials.should be true
+        expect(subject.remove_credentials).to be true
       end
 
     end
@@ -75,12 +75,12 @@ describe SUSE::Connect::System do
 
     it 'returns false if no credentials' do
       subject.stub(credentials: nil)
-      subject.credentials?.should be false
+      expect(subject.credentials?).to be false
     end
 
     it 'returns true if credentials exist' do
       subject.stub(credentials: Credentials.new('123456789', 'ABCDEF'))
-      subject.credentials?.should be true
+      expect(subject.credentials?).to be true
     end
   end
 
@@ -88,14 +88,14 @@ describe SUSE::Connect::System do
 
     it 'returns false if sytem does not have a credentials' do
       subject.stub(:credentials? => false)
-      subject.activated_base_product?.should be false
+      expect(subject.activated_base_product?).to be false
     end
 
     it 'returns false if sytem has credentials but not activated' do
       subject.stub(credentials?: true)
-      Zypper.stub(:base_product)
+      allow(Zypper).to receive(:base_product)
       expect(SUSE::Connect::Status).to receive(:activated_products).and_return([])
-      subject.activated_base_product?.should be false
+      expect(subject.activated_base_product?).to be false
     end
 
     it 'returns true if sytem has credentials and activated' do
@@ -104,15 +104,15 @@ describe SUSE::Connect::System do
 
       expect(Zypper).to receive(:base_product).and_return(product)
       expect(SUSE::Connect::Status).to receive(:activated_products).and_return([product])
-      subject.activated_base_product?.should be true
+      expect(subject.activated_base_product?).to be true
     end
   end
 
   describe '.add_service' do
 
     before(:each) do
-      Zypper.stub(:write_service_credentials)
-      Credentials.any_instance.stub(:write)
+      allow(Zypper).to receive(:write_service_credentials)
+      allow_any_instance_of(Credentials).to receive(:write)
     end
 
     let :mock_service do
@@ -120,10 +120,10 @@ describe SUSE::Connect::System do
     end
 
     it 'adds zypper service to the system' do
-      Zypper.should_receive(:remove_service).with('JiYoKo')
-      Zypper.should_receive(:add_service).with('furl', 'JiYoKo')
-      Zypper.should_receive(:write_service_credentials).with('JiYoKo')
-      Zypper.should_receive(:refresh_services).exactly(1).times
+      expect(Zypper).to receive(:remove_service).with('JiYoKo')
+      expect(Zypper).to receive(:add_service).with('furl', 'JiYoKo')
+      expect(Zypper).to receive(:write_service_credentials).with('JiYoKo')
+      expect(Zypper).to receive(:refresh_services).exactly(1).times
       subject.add_service mock_service
     end
 
@@ -136,7 +136,7 @@ describe SUSE::Connect::System do
     context :hostname_detected do
       it 'returns hostname' do
         Socket.stub(:gethostname => 'vargan')
-        subject.hostname.should eq 'vargan'
+        expect(subject.hostname).to eq 'vargan'
       end
     end
 
@@ -145,7 +145,7 @@ describe SUSE::Connect::System do
         stubbed_ip_address_list = [Addrinfo.ip('127.0.0.1'), Addrinfo.ip('192.168.42.100'), Addrinfo.ip('192.168.42.42')]
         Socket.stub(:ip_address_list => stubbed_ip_address_list)
         Socket.stub(:gethostname => nil)
-        subject.hostname.should eq '192.168.42.100'
+        expect(subject.hostname).to eq '192.168.42.100'
       end
     end
 
@@ -154,7 +154,7 @@ describe SUSE::Connect::System do
         stubbed_ip_address_list = [Addrinfo.ip('127.0.0.1'), Addrinfo.ip('192.168.42.42')]
         Socket.stub(:ip_address_list => stubbed_ip_address_list)
         Socket.stub(:gethostname => '(none)')
-        subject.hostname.should eq '192.168.42.42'
+        expect(subject.hostname).to eq '192.168.42.42'
       end
     end
 
@@ -163,7 +163,7 @@ describe SUSE::Connect::System do
         stubbed_ip_address_list = [Addrinfo.ip('127.0.0.1'), Addrinfo.ip('44.0.0.69')]
         Socket.stub(:ip_address_list => stubbed_ip_address_list)
         Socket.stub(:gethostname => nil)
-        subject.hostname.should eq nil
+        expect(subject.hostname).to eq nil
       end
     end
   end
@@ -172,7 +172,7 @@ describe SUSE::Connect::System do
 
     it 'reads file' do
       instance_file_path = 'spec/fixtures/instance_data.xml'
-      subject.read_file(instance_file_path).should eq File.read(instance_file_path)
+      expect(subject.read_file(instance_file_path)).to eq File.read(instance_file_path)
     end
 
     it 'raises on unreadable file' do

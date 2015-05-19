@@ -11,12 +11,12 @@ describe SUSE::Connect::Connection do
     end
 
     it 'stores http object' do
-      secure_connection.http.should be_kind_of Net::HTTP
+      expect(secure_connection.http).to be_kind_of Net::HTTP
     end
 
     it 'parse passed endpoint to http port and host' do
-      secure_connection.http.port.should eq 443
-      secure_connection.http.address.should eq 'example.com'
+      expect(secure_connection.http.port).to eq 443
+      expect(secure_connection.http.address).to eq 'example.com'
     end
 
     context :proxy_detected do
@@ -40,11 +40,11 @@ describe SUSE::Connect::Connection do
     context :default_values do
 
       it 'set ssl to true by default' do
-        secure_connection.http.use_ssl?.should be true
+        expect(secure_connection.http.use_ssl?).to be true
       end
 
       it 'set insecure to false by default' do
-        secure_connection.http.verify_mode.should eq OpenSSL::SSL::VERIFY_PEER
+        expect(secure_connection.http.verify_mode).to eq OpenSSL::SSL::VERIFY_PEER
       end
 
       it 'sets a default verify_callack' do
@@ -79,11 +79,11 @@ describe SUSE::Connect::Connection do
       end
 
       it 'set ssl to true by default' do
-        secure_connection.http.use_ssl?.should be true
+        expect(secure_connection.http.use_ssl?).to be true
       end
 
       it 'set insecure to false by default' do
-        secure_connection.http.verify_mode.should eq OpenSSL::SSL::VERIFY_NONE
+        expect(secure_connection.http.verify_mode).to eq OpenSSL::SSL::VERIFY_NONE
       end
 
       it 'sets the provided verify_callback' do
@@ -101,14 +101,14 @@ describe SUSE::Connect::Connection do
     end
 
     before do
-      connection.http.should_receive(:request).and_return(OpenStruct.new(:body => 'bodyofostruct'))
+      expect(connection.http).to receive(:request).and_return(OpenStruct.new(:body => 'bodyofostruct'))
       JSON.stub(:parse => { '1' => '2' })
     end
 
     context :get_request do
 
       it 'takes Net::HTTP::Get class to build request' do
-        Net::HTTP::Get.should_receive(:new).and_call_original
+        expect(Net::HTTP::Get).to receive(:new).and_call_original
         connection.send(:json_request, :get, '/api/v1/megusta')
       end
 
@@ -117,7 +117,7 @@ describe SUSE::Connect::Connection do
     context :post_request do
 
       it 'takes Net::HTTP::Post class to build request' do
-        Net::HTTP::Post.should_receive(:new).and_call_original
+        expect(Net::HTTP::Post).to receive(:new).and_call_original
         connection.send(:json_request, :post, '/api/v1/megusta')
       end
 
@@ -126,7 +126,7 @@ describe SUSE::Connect::Connection do
     context :put_request do
 
       it 'takes Net::HTTP::Put class to build request' do
-        Net::HTTP::Put.should_receive(:new).and_call_original
+        expect(Net::HTTP::Put).to receive(:new).and_call_original
         connection.send(:json_request, :put, '/api/v1/megusta')
       end
 
@@ -135,7 +135,7 @@ describe SUSE::Connect::Connection do
     context :delete_request do
 
       it 'takes Net::HTTP::Delete class to build request' do
-        Net::HTTP::Delete.should_receive(:new).and_call_original
+        expect(Net::HTTP::Delete).to receive(:new).and_call_original
         connection.send(:json_request, :delete, '/api/v1/megusta')
       end
 
@@ -167,7 +167,7 @@ describe SUSE::Connect::Connection do
 
       connection = subject.new('https://example.com', :language => 'blabla')
       result = connection.post('/api/v1/test', :auth => 'Token token=zulu')
-      result.code.should eq 200
+      expect(result.code).to eq 200
     end
 
     it 'sends Accept header with api versioning' do
@@ -178,7 +178,7 @@ describe SUSE::Connect::Connection do
 
       connection = subject.new('https://example.com')
       result = connection.post('/api/v1/test', :auth => 'Token token=zulu')
-      result.code.should eq 200
+      expect(result.code).to eq 200
     end
 
     it 'sends USER-AGENT header with SUSEConnect package version' do
@@ -195,7 +195,7 @@ describe SUSE::Connect::Connection do
 
       connection = subject.new('https://example.com')
       result = connection.post('/api/v1/test')
-      result.code.should eq 200
+      expect(result.code).to eq 200
     end
 
     it 'converts response into proper hash' do
@@ -205,8 +205,8 @@ describe SUSE::Connect::Connection do
         .to_return(:status => 200, :body => "{\"keyyo\":\"vallue\"}", :headers => {})
 
       result = connection.post('/api/v1/test', :auth => 'Token token=zulu')
-      result.body.should eq('keyyo' => 'vallue')
-      result.code.should eq 200
+      expect(result.body).to eq('keyyo' => 'vallue')
+      expect(result.code).to eq 200
     end
 
     it 'response includes API response headers' do
@@ -218,8 +218,8 @@ describe SUSE::Connect::Connection do
 
       connection = subject.new('https://example.com')
       result = connection.post('/api/v1/test', :auth => 'Token token=zulu')
-      result.headers['scc-api-version'].first.should eq api_version
-      result.code.should eq 200
+      expect(result.headers['scc-api-version'].first).to eq api_version
+      expect(result.code).to eq 200
     end
 
     it 'send params alongside with request' do
@@ -233,8 +233,8 @@ describe SUSE::Connect::Connection do
           :auth => 'Token token=zulu',
           :params => { :foo => 'bar', :bar => [1, 3, 4] }
       )
-      result.body.should eq('keyyo' => 'vallue')
-      result.code.should eq 200
+      expect(result.body).to eq('keyyo' => 'vallue')
+      expect(result.code).to eq 200
     end
 
     it 'accepts empty request body' do
@@ -278,11 +278,11 @@ describe SUSE::Connect::Connection do
           :body => { 'error' => 'These are not the droids you were looking for' }
       )
 
-      connection.should_receive(:json_request).and_return parsed_output
+      expect(connection).to receive(:json_request).and_return parsed_output
       expect { connection.post('/api/v1/test', :auth   => 'Token token=zulu', :params => {}) }
       .to raise_error(ApiError) do |error|
-        error.code.should eq 422
-        error.response.body.should eq('error' => 'These are not the droids you were looking for')
+        expect(error.code).to eq 422
+        expect(error.response.body).to eq('error' => 'These are not the droids you were looking for')
       end
     end
   end

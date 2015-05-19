@@ -53,7 +53,7 @@ describe SUSE::Connect::Api do
     mock_dry_file
 
     it 'sends a call with proper payload to api' do
-      Connection.any_instance.should_receive(:post).with(*payload).and_call_original
+      expect_any_instance_of(Connection).to receive(:post).with(*payload).and_call_original
       subject.new(client).announce_system('token')
     end
 
@@ -61,18 +61,18 @@ describe SUSE::Connect::Api do
       args = payload.clone
       args.last[:params][:distro_target] = 'aaaaaaaa'
 
-      Connection.any_instance.should_receive(:post).with(*args).and_call_original
+      expect_any_instance_of(Connection).to receive(:post).with(*args).and_call_original
       subject.new(client).announce_system('token', 'aaaaaaaa')
     end
 
     it 'won\'t access Zypper if the optional parameter "distro_target" is set' do
-      Zypper.should_receive(:distro_target).never
-      Connection.any_instance.should_receive(:post).and_call_original
+      expect(Zypper).to receive(:distro_target).never
+      expect_any_instance_of(Connection).to receive(:post).and_call_original
       subject.new(client).announce_system('token', 'optional_target')
     end
 
     it 'sets instance data in payload' do
-      Connection.any_instance.should_receive(:post)
+      expect_any_instance_of(Connection).to receive(:post)
         .with('/connect/subscriptions/systems',
               :auth => 'token',
               :params => { :hostname => 'connect', :hwinfo => 'hwinfo', :distro_target => 'HHH', :instance_data => '<test>' })
@@ -86,7 +86,7 @@ describe SUSE::Connect::Api do
         payload = ['/connect/subscriptions/systems', :auth => 'token', :params => {
           :hostname => 'connect', :hwinfo => 'hwinfo', :distro_target => 'HHH' }
         ]
-        Connection.any_instance.should_receive(:post).with(*payload).and_call_original
+        expect_any_instance_of(Connection).to receive(:post).with(*payload).and_call_original
         subject.new(client).announce_system('token')
       end
 
@@ -100,7 +100,7 @@ describe SUSE::Connect::Api do
         payload = ['/connect/subscriptions/systems', :auth => 'token', :params => {
           :hostname => '192.168.42.42', :hwinfo => 'hwinfo', :distro_target => 'HHH' }
         ]
-        Connection.any_instance.should_receive(:post).with(*payload).and_call_original
+        expect_any_instance_of(Connection).to receive(:post).with(*payload).and_call_original
         subject.new(client).announce_system('token')
       end
 
@@ -119,15 +119,15 @@ describe SUSE::Connect::Api do
     describe :services do
 
       it 'returns returns array of services as known by the system' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/services', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/services', :auth => 'basic_auth_string').and_call_original
         subject.new(client).system_services('basic_auth_string')
       end
 
       it 'holds expected structure' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/services', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/services', :auth => 'basic_auth_string').and_call_original
         result = subject.new(client).system_services('basic_auth_string').body
-        result.should be_kind_of Array
-        result.first.keys.should eq %w{id name product}
+        expect(result).to be_kind_of Array
+        expect(result.first.keys).to eq %w{id name product}
       end
 
     end
@@ -139,17 +139,17 @@ describe SUSE::Connect::Api do
       end
 
       it 'returns returns array of subscriptions known by the system' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/subscriptions', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/subscriptions', :auth => 'basic_auth_string').and_call_original
         subject.new(client).system_subscriptions('basic_auth_string')
       end
 
       it 'holds expected structure' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/subscriptions', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/subscriptions', :auth => 'basic_auth_string').and_call_original
         result = subject.new(client).system_subscriptions('basic_auth_string').body
-        result.should be_kind_of Array
+        expect(result).to be_kind_of Array
         attr_ary = %w{id regcode name type status starts_at expires_at}
         attr_ary += %w{system_limit systems_count virtual_count product_classes systems product_ids}
-        result.first.keys.should eq attr_ary
+        expect(result.first.keys).to eq attr_ary
       end
 
     end
@@ -161,14 +161,14 @@ describe SUSE::Connect::Api do
       end
 
       it 'returns returns array of subscriptions known by the system' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/activations', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/activations', :auth => 'basic_auth_string').and_call_original
         subject.new(client).system_activations('basic_auth_string')
       end
 
       it 'holds expected structure' do
-        Connection.any_instance.should_receive(:get).with('/connect/systems/activations', :auth => 'basic_auth_string').and_call_original
+        expect_any_instance_of(Connection).to receive(:get).with('/connect/systems/activations', :auth => 'basic_auth_string').and_call_original
         result = subject.new(client).system_activations('basic_auth_string').body
-        result.should be_kind_of Array
+        expect(result).to be_kind_of Array
         attr_ary = %w{id regcode type status starts_at expires_at system_id service}
         expect(result.first.keys).to eq attr_ary
       end
@@ -197,17 +197,17 @@ describe SUSE::Connect::Api do
 
     it 'calls ConnectAPI with basic auth and params and receives a JSON in return (use proper webmock)' do
       stub_activate_call
-      Connection.any_instance.should_receive(:post)
+      expect_any_instance_of(Connection).to receive(:post)
         .with(api_endpoint, :auth => system_auth, :params => payload)
         .and_call_original
       response = subject.new(client).activate_product(system_auth, product)
-      response.body['name'].should eq 'SUSE_Linux_Enterprise_Server_12_x86_64'
+      expect(response.body['name']).to eq 'SUSE_Linux_Enterprise_Server_12_x86_64'
     end
 
     it 'allows to add an optional parameter "email"' do
       email = 'email@domain.com'
       payload[:email] = email
-      Connection.any_instance.should_receive(:post)
+      expect_any_instance_of(Connection).to receive(:post)
         .with(api_endpoint, :auth => system_auth, :params => payload)
       subject.new(client).activate_product(system_auth, product, email)
     end
@@ -232,11 +232,11 @@ describe SUSE::Connect::Api do
 
     it 'calls ConnectAPI with basic auth and params and receives a JSON in return' do
       stub_upgrade_call
-      Connection.any_instance.should_receive(:put)
+      expect_any_instance_of(Connection).to receive(:put)
       .with(api_endpoint, :auth => system_auth, :params => payload)
       .and_call_original
       response = subject.new(client).upgrade_product(system_auth, product)
-      response.body['sources'].keys.first.should include('SUSE')
+      expect(response.body['sources'].keys.first).to include('SUSE')
     end
 
   end
@@ -256,7 +256,7 @@ describe SUSE::Connect::Api do
         :auth => 'Basic: encodedgibberish',
         :params => query
       ]
-      Connection.any_instance.should_receive(:get)
+      expect_any_instance_of(Connection).to receive(:get)
         .with(*payload)
         .and_call_original
       subject.new(client).show_product('Basic: encodedgibberish', product)
@@ -264,12 +264,12 @@ describe SUSE::Connect::Api do
 
     it 'responds with proper status code' do
       response = subject.new(client).show_product('Basic: encodedgibberish', product)
-      response.code.should eq 200
+      expect(response.code).to eq 200
     end
 
     it 'returns array of extensions' do
       body = subject.new(client).show_product('Basic: encodedgibberish', product).body
-      body.should be_kind_of Hash
+      expect(body).to be_kind_of Hash
     end
 
   end
@@ -351,7 +351,7 @@ describe SUSE::Connect::Api do
         :auth => 'Basic: encodedgibberish'
       ]
 
-      Connection.any_instance.should_receive(:delete)
+      expect_any_instance_of(Connection).to receive(:delete)
         .with(*payload)
         .and_call_original
 
@@ -360,12 +360,12 @@ describe SUSE::Connect::Api do
 
     it 'responds with proper status code' do
       response = subject.new(client).deregister('Basic: encodedgibberish')
-      response.code.should eq 204
+      expect(response.code).to eq 204
     end
 
     it 'returns empty body' do
       body = subject.new(client).deregister('Basic: encodedgibberish').body
-      body.should be_nil
+      expect(body).to be_nil
     end
   end
 
@@ -384,18 +384,18 @@ describe SUSE::Connect::Api do
         :auth => 'Basic: encodedgibberish', :params => { :hostname => 'connect', :hwinfo => 'hwinfo',
                                                          :distro_target => 'openSUSE-4.1-x86_64' }
       ]
-      Connection.any_instance.should_receive(:put).with(*payload).and_call_original
+      expect_any_instance_of(Connection).to receive(:put).with(*payload).and_call_original
       subject.new(client).update_system('Basic: encodedgibberish')
     end
 
     it 'responds with proper status code' do
       response = subject.new(client).update_system('Basic: encodedgibberish')
-      response.code.should eq 204
+      expect(response.code).to eq 204
     end
 
     it 'returns empty body' do
       body = subject.new(client).update_system('Basic: encodedgibberish').body
-      body.should be_nil
+      expect(body).to be_nil
     end
   end
 

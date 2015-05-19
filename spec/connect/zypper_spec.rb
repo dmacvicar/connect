@@ -23,23 +23,23 @@ describe SUSE::Connect::Zypper do
 
         before do
           args = 'zypper --xmlout --non-interactive products -i'
-          Open3.should_receive(:capture3).with(shared_env_hash, args).and_return([xml, '', status])
+          expect(Open3).to receive(:capture3).with(shared_env_hash, args).and_return([xml, '', status])
         end
 
         it 'returns valid list of products based on proper XML' do
-          subject.installed_products.first.identifier.should eq 'SUSE_SLES'
+          expect(subject.installed_products.first.identifier).to eq 'SUSE_SLES'
         end
 
         it 'returns valid version' do
-          subject.installed_products.first.version.should eq '11.3'
+          expect(subject.installed_products.first.version).to eq '11.3'
         end
 
         it 'returns valid arch' do
-          subject.installed_products.first.arch.should eq 'x86_64'
+          expect(subject.installed_products.first.arch).to eq 'x86_64'
         end
 
         it 'returns proper base product' do
-          subject.base_product.identifier.should eq 'SUSE_SLES'
+          expect(subject.base_product.identifier).to eq 'SUSE_SLES'
         end
 
       end
@@ -52,23 +52,23 @@ describe SUSE::Connect::Zypper do
 
         before do
           args = 'zypper --xmlout --non-interactive products -i'
-          Open3.should_receive(:capture3).with(shared_env_hash, args).and_return([xml, '', status])
+          expect(Open3).to receive(:capture3).with(shared_env_hash, args).and_return([xml, '', status])
         end
 
         it 'returns valid name' do
-          subject.installed_products.first.identifier.should eq 'SLES'
+          expect(subject.installed_products.first.identifier).to eq 'SLES'
         end
 
         it 'returns valid version' do
-          subject.installed_products.first.version.should eq '12'
+          expect(subject.installed_products.first.version).to eq '12'
         end
 
         it 'returns valid arch' do
-          subject.installed_products.first.arch.should eq 'x86_64'
+          expect(subject.installed_products.first.arch).to eq 'x86_64'
         end
 
         it 'returns proper base product' do
-          subject.base_product.identifier.should eq 'SLES'
+          expect(subject.base_product.identifier).to eq 'SLES'
         end
 
       end
@@ -166,11 +166,11 @@ describe SUSE::Connect::Zypper do
 
     before do
       subject.stub(:installed_products => parsed_products)
-      Credentials.any_instance.stub(:write)
+      allow_any_instance_of(Credentials).to receive(:write)
     end
 
     it 'should return first product from installed product which is base' do
-      subject.base_product.should eq(parsed_products.first)
+      expect(subject.base_product).to eq(parsed_products.first)
     end
 
     it 'raises CannotDetectBaseProduct if cant get base system from list of installed products' do
@@ -186,11 +186,11 @@ describe SUSE::Connect::Zypper do
     mock_dry_file
 
     before do
-      Credentials.any_instance.stub(:write)
+      allow_any_instance_of(Credentials).to receive(:write)
     end
 
     it 'should call write_base_credentials_file' do
-      Credentials.should_receive(:new).with('dummy', 'tummy', Credentials::GLOBAL_CREDENTIALS_FILE).and_call_original
+      expect(Credentials).to receive(:new).with('dummy', 'tummy', Credentials::GLOBAL_CREDENTIALS_FILE).and_call_original
       subject.write_base_credentials('dummy', 'tummy')
     end
 
@@ -201,16 +201,16 @@ describe SUSE::Connect::Zypper do
     mock_dry_file
 
     before do
-      Credentials.any_instance.stub(:write)
+      allow_any_instance_of(Credentials).to receive(:write)
     end
 
     it 'extracts username and password from system credentials' do
-      System.should_receive(:credentials)
+      expect(System).to receive(:credentials)
       subject.write_service_credentials('turbo')
     end
 
     it 'creates a file with source name' do
-      Credentials.should_receive(:new).with('dummy', 'tummy', 'turbo').and_call_original
+      expect(Credentials).to receive(:new).with('dummy', 'tummy', 'turbo').and_call_original
       subject.write_service_credentials('turbo')
     end
 
@@ -218,16 +218,16 @@ describe SUSE::Connect::Zypper do
 
   describe '.distro_target' do
     it 'return zypper targetos output' do
-      Open3.should_receive(:capture3).with(shared_env_hash, 'zypper targetos').and_return(['openSUSE-13.1-x86_64', '', status])
-      Zypper.distro_target.should eq 'openSUSE-13.1-x86_64'
+      expect(Open3).to receive(:capture3).with(shared_env_hash, 'zypper targetos').and_return(['openSUSE-13.1-x86_64', '', status])
+      expect(Zypper.distro_target).to eq 'openSUSE-13.1-x86_64'
     end
 
     it 'return zypper targetos output --root case' do
       args = "zypper --root '/path/to/root' targetos"
-      Open3.should_receive(:capture3).with(shared_env_hash, args).and_return(['openSUSE-13.1-x86_64', '', status])
+      expect(Open3).to receive(:capture3).with(shared_env_hash, args).and_return(['openSUSE-13.1-x86_64', '', status])
 
       SUSE::Connect::System.filesystem_root = '/path/to/root'
-      Zypper.distro_target.should eq 'openSUSE-13.1-x86_64'
+      expect(Zypper.distro_target).to eq 'openSUSE-13.1-x86_64'
     end
   end
 
