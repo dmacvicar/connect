@@ -48,7 +48,7 @@ gem build suse-connect.gemspec
 And copy it to the package-building directory:
 
 ```bash
-cp suse-connect-*.gem package/
+cp -v suse-connect-*.gem package/
 ```
 
 To update the man pages for the package please do:
@@ -105,8 +105,13 @@ and for SP1:
 ```
 osc mr Devel:SCC:suseconnect SUSEConnect SUSE:SLE-12-SP1:Update --no-cleanup
 ```
-and for SP2 (until it's released):
+and for SP2:
 
 ```
-osc sr Devel:SCC:suseconnect SUSEConnect SUSE:SLE-12-SP2:GA --no-cleanup
+osc mr Devel:SCC:suseconnect SUSEConnect SUSE:SLE-12-SP2:Update --no-cleanup
+```
+and for SP3 (until it's released):
+
+```
+osc sr Devel:SCC:suseconnect SUSEConnect SUSE:SLE-12-SP3:GA --no-cleanup
 ```
