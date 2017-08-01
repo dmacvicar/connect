@@ -1,4 +1,5 @@
 require 'suse/toolkit/product_equality'
+require 'suse/toolkit/identifier'
 require 'suse/toolkit/cast'
 
 # Product as sent from registration server
@@ -8,11 +9,15 @@ require 'suse/toolkit/cast'
 class SUSE::Connect::Remote::Product < SUSE::Connect::Remote::ServerDrivenModel
   include SUSE::Toolkit::ProductEquality
   include SUSE::Toolkit::Cast
+  include SUSE::Toolkit::Identifier
 
   def initialize(product_hash)
     super
     # TODO: ensure we have array here
     self.extensions = extensions.map {|ext| self.class.new(ext) } if extensions
+    if extensions && mandatory_extensions
+      self.mandatory_extensions = mandatory_extensions.map{|cpe| extensions.find{|ext| ext.cpe == cpe}}
+    end
   end
 
   def to_params
@@ -23,4 +28,5 @@ class SUSE::Connect::Remote::Product < SUSE::Connect::Remote::ServerDrivenModel
       release_type: release_type
     }
   end
+
 end

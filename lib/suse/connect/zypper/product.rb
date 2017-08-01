@@ -1,6 +1,9 @@
+require 'suse/toolkit/identifier'
+
 # Product Extensions to give to YaST.
 class SUSE::Connect::Zypper::Product
   include SUSE::Toolkit::ProductEquality
+  include SUSE::Toolkit::Identifier
 
   attr_reader :identifier, :version, :arch, :isbase, :release_type, :summary
 

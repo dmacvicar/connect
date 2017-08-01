@@ -26,9 +26,24 @@ module SUSE
         announce_or_update
         product = @config.product || Zypper.base_product
         service = activate_product(product, @config.email)
+        # if true #!service.product.bundle_root
+        #   System.add_service(service)
+        #   Zypper.install_release_package(product.identifier) if @config.product
+        # else # NOTE: product bundle is a concept we brought with SLES15. SLES is a compound of products
+        #   print_success_message(service.product)
+        #   print_base_replacement_message(service.product)
+        #   # ACTION!!!! replace base
+        # end
         System.add_service(service)
         Zypper.install_release_package(product.identifier) if @config.product
-        print_success_message product
+        print_success_message(product)
+        if service.product.mandatory_extensions.any?
+          print_mandatory_extensions_message(service.product)
+          service.product.mandatory_extensions.each do |mandatory_extension|
+            @config.product = mandatory_extension
+            register!
+          end
+        end
       end
 
       # Deregisters a whole system or a single product
@@ -183,6 +198,21 @@ module SUSE
         log.info "Rooted at: #{@config.filesystem_root}" if @config.filesystem_root
         log.info "To server: #{@config.url}" if @config.url
         log.info "Using E-Mail: #{@config.email}" if @config.email
+      end
+
+      def print_base_replacement_message(product)
+        log.info ">>>> #{product.identifier} #{product.version} #{product.arch} is a bundle"
+        log.info ">>>> #{Zypper.base_product.identifier_triple} will be replaced with #{@config.product.identifier_triple}"
+      end
+
+      # TODO: rename
+      def print_mandatory_extensions_message(product)
+        log.info '>>>> mandatory extensions will be activated.'
+        log.info ">>>> Activating following extensions now:\n"
+        product.mandatory_extensions.each do |extension|
+          log.info "     * #{extension.identifier_triple}"
+        end
+
       end
     end
   end
