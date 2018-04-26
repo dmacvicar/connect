@@ -6,12 +6,6 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
-      steps {
-        git 'git@github.com:SUSE/connect.git'
-      }
-    }
-
     stage('Run tests on supported SLE versions') {
       parallel {
         stage('SLE12 SP0') {
