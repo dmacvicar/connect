@@ -1,19 +1,17 @@
 #!groovy
 
 node('scc-connect') {
-  ansiColor('xterm') {
-    stage('checkout') {
-      git 'git@github.com:SUSE/connect.git'
-    }
+  stage('checkout') {
+    git 'git@github.com:SUSE/connect.git'
+  }
 
-    stage('copy configuration') {
-      sh 'cp /home/jenkins/options-local-connect-prophet.yml prophet/options-local.yml'
-    }
+  stage('copy configuration') {
+    sh 'cp /home/jenkins/options-local-connect-prophet.yml prophet/options-local.yml'
+  }
 
-    stage('run prophet') {
-      dir('./prophet') {
-        sh 'ruby ./prophet.rb'
-      }
+  stage('run prophet') {
+    dir('./prophet') {
+      sh 'ruby ./prophet.rb'
     }
   }
 }
